@@ -16,7 +16,9 @@ A NodeJS server-side rendered voting app where :
 1. mongoDB / mongoose
 2. express
 3. ejs
-4. passport 
+4. passport
+5. dotenv
+6. morgan
 
 ## Model
 ```
@@ -48,7 +50,13 @@ ip-address
 +----> ip-address
 +----> poll.id
 ```
-## Routes
+## pages
+1. index.ejs - homepage / login
+2. all_polls.ejs - polls
+3. vote_poll.ejs - vote poll
+4. edit_delete.ejs - edit / delete poll
+5. add.ejs - add poll
+6. my_polls.ejs - my polls
 
 ## Author
 Neptune Michael Cabelin
