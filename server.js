@@ -5,6 +5,9 @@ var app = express(),
     session = require('express-session'),
     passport = require('passport'),
     twitter = require('./auth/twitter'),
+    bodyParser = require('body-parser'),
+    Poll = require('./models/polls'),
+    PollOption = require('./models/poll-options.js'),
     User = require('./models/users');
     port = process.env.PORT || 8080,
     ip = process.env.IP;
@@ -12,6 +15,7 @@ var app = express(),
 require('dotenv').config();
 mongoose.connect(process.env.MONGODB_URI);
 
+app.use(bodyParser.urlencoded({ extended: true}));
 app.use(morgan('tiny'));
 app.use(session({
   secret: process.env.TWITTER_SECRET,
@@ -24,8 +28,16 @@ app.set('view engine', 'ejs');
 app.use(express.static('static'));
 
 app.get('/', function(req, res) {
-  var user = req.user || '';
-  res.render('index', { user: user });
+  Poll.find({}, function(err, polls) {
+    if (err) {
+      res.status(400).json({'message':'error retrieving polls'})
+    } else {
+      res.render('index', {
+        user: req.user || '',
+        polls: polls || []
+      });
+    }
+  });
 });
 
 app.get('/auth/twitter', twitter.authenticate('twitter'));
@@ -34,18 +46,49 @@ app.get('/auth/twitter/callback', twitter.authenticate('twitter', { failureRedir
 });
 
 app.get('/login', function(req, res) {
-  res.render('login');
+  res.render('login', { user: req.user || '' });
 });
 
 app.get('/add', isLoggedIn, function(req, res) {
-  res.render('add');
-});
+  res.render('add', { user: req.user || '' });
+}).post('/add', isLoggedIn, function(req, res) {
+  var question = req.body.question;
+      options = req.body.options.split('\n');
+  Poll.create({
+    user: {
+      id: req.user._id
+    },
+    question: question
+  }, function(err, poll) {
+    if (err) {
+      return res.status(400).json({'message': 'error saving poll'});
+    } else {
+      options.forEach(function(option) {
+        PollOption.create({
+          poll: {
+            id: poll._id
+          },
+          option: option,
+          count: 0
+        }, function(err, pollOption) {
+          if (err) {
+            return res.status(400).json({'message': 'error saving option'});
+          } else {
+            console.log(pollOption);
+          }
+        });
+      });
+    }
+  });
 
-app.get('/edit_delete/:poll_id', function(req, res) {
+  res.redirect('/');
+})
+
+app.get('/edit_delete/:poll_id', isLoggedIn, function(req, res) {
   res.render('edit_delete');
 });
 
-app.get('/my_polls', function(req, res) {
+app.get('/my_polls', isLoggedIn, function(req, res) {
   res.render('my_polls');
 });
 
@@ -53,13 +96,12 @@ app.get('/vote_poll', function(req, res) {
   res.render('/vote_poll');
 });
 
-app.get('/logout', function(req, res) {
+app.get('/logout', isLoggedIn, function(req, res) {
   req.logout();
   res.redirect('/')
 });
 
 function isLoggedIn(req, res, next) {
-  console.log(req.user);
   if (req.user) {
     return next();
   }
