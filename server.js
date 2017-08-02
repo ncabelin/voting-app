@@ -95,14 +95,13 @@ app.get('/add', isLoggedIn, function(req, res) {
                   }
                 });
               });
+              res.redirect('/my_polls');
             }
           });
         }
       });
     }
   });
-
-  res.redirect('/my_polls');
 })
 
 app.get('/edit_delete/:poll_id', isLoggedIn, function(req, res) {
