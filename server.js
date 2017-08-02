@@ -53,7 +53,7 @@ app.get('/add', isLoggedIn, function(req, res) {
   res.render('add', { user: req.user || '' });
 }).post('/add', isLoggedIn, function(req, res) {
   var question = req.body.question;
-      options = req.body.options.split('\n');
+      options = req.body.options.split('\r\n');
   Poll.create({
     user: {
       id: req.user._id
@@ -63,25 +63,46 @@ app.get('/add', isLoggedIn, function(req, res) {
     if (err) {
       return res.status(400).json({'message': 'error saving poll'});
     } else {
-      options.forEach(function(option) {
-        PollOption.create({
-          poll: {
-            id: poll._id
-          },
-          option: option,
-          count: 0
-        }, function(err, pollOption) {
-          if (err) {
-            return res.status(400).json({'message': 'error saving option'});
-          } else {
-            console.log(pollOption);
-          }
-        });
+      User.findOne({ _id: req.user._id }, function(err, foundUser) {
+        if (err) {
+          return res.status(400).json({'message':'User not found'});
+        } else {
+          foundUser.polls.push(poll);
+          foundUser.save(function(err, user) {
+            if (err) { return res.status(400) }
+            else {
+              options.forEach(function(option) {
+                PollOption.create({
+                  poll: {
+                    id: poll._id
+                  },
+                  option: option,
+                  count: 0
+                }, function(err, pollOption) {
+                  if (err) {
+                    return res.status(400).json({'message': 'error saving option'});
+                  } else {
+                    Poll.findOne({ _id: poll._id }, function(err, foundPoll) {
+                      if (err) {
+                        return res.status(400).json({'message': 'error finding poll'});
+                      } else {
+                        foundPoll.options.push(pollOption);
+                        foundPoll.save(function(err, poll) {
+                          if (err) { return res.status(400) }
+                        });
+                      }
+                    });
+                  }
+                });
+              });
+            }
+          });
+        }
       });
     }
   });
 
-  res.redirect('/');
+  res.redirect('/my_polls');
 })
 
 app.get('/edit_delete/:poll_id', isLoggedIn, function(req, res) {
@@ -89,7 +110,12 @@ app.get('/edit_delete/:poll_id', isLoggedIn, function(req, res) {
 });
 
 app.get('/my_polls', isLoggedIn, function(req, res) {
-  res.render('my_polls');
+  User.findOne({ _id: req.user._id }).populate('polls').exec(function(err, user) {
+    res.render('my_polls', {
+      user: req.user || '',
+      polls: user.polls || []
+    });
+  })
 });
 
 app.get('/vote_poll', function(req, res) {
