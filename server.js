@@ -8,6 +8,7 @@ var app = express(),
     bodyParser = require('body-parser'),
     Poll = require('./models/polls'),
     PollOption = require('./models/poll-options.js'),
+    IpAddress = require('./models/ip-address.js'),
     User = require('./models/users');
     port = process.env.PORT || 8080,
     ip = process.env.IP;
@@ -109,17 +110,68 @@ app.get('/edit_delete/:poll_id', isLoggedIn, function(req, res) {
 });
 
 app.get('/my_polls', isLoggedIn, function(req, res) {
-  User.findOne({ _id: req.user._id }).populate('polls').exec(function(err, user) {
-    res.render('my_polls', {
-      user: req.user || '',
-      polls: user.polls || []
-    });
-  })
+  User.findOne({ _id: req.user._id })
+    .populate('polls')
+    .exec(function(err, user) {
+      res.render('my_polls', {
+        user: req.user || '',
+        polls: user.polls || []
+      });
+    })
 });
 
-app.get('/vote_poll', function(req, res) {
-  res.render('/vote_poll');
-});
+app.get('/vote_poll/:poll_id', function(req, res) {
+  Poll.findOne({ _id: req.params.poll_id })
+    .populate('options')
+    .exec(function(err, foundPoll) {
+      res.render('vote_poll', {
+        user: req.user || '',
+        poll: foundPoll
+      });
+    })
+  })
+  .post('/vote_poll/:poll_id', function(req, res) {
+    // look for ip
+    var ip = req.ip,
+        poll_id = req.params.poll_id;
+        vote_id = req.body.vote_id;
+    IpAddress.findOne({ ip: ip}, function(err, ipadd) {
+      if (err) { res.status(400).json({'error':'error finding ip'})}
+      if (ipadd) {
+        // check if ipadd has the poll id
+        var index = ipadd.polls.indexOf(poll_id);
+        if (index === -1) {
+          // add poll id to ip address
+          ipadd.polls.push(poll_id);
+          ipadd.save();
+          // increment vote to poll-option
+          PollOption.findOne({ _id: vote_id }, function(err, poll_option) {
+            if (err) { res.status(400).json({'message':'error finding poll option'})}
+            poll_option.count += 1;
+            poll_option.save();
+            res.redirect('/vote_poll/' + poll_id);
+          });
+        } else {
+          // else ip found
+          res.status(400).json({'message':'Sorry this ip address cannot vote more than once in this poll'});
+        }
+      } else {
+        // no existing ip address, create new ip address
+        var newIp = new IpAddress({
+          ip: ip,
+          polls: [poll_id]
+        })
+        newIp.save();
+        // increment vote to poll-option
+        PollOption.findOne({ _id: vote_id }, function(err, poll_option) {
+          if (err) { res.status(400).json({'message':'error finding poll option'})}
+          poll_option.count += 1;
+          poll_option.save();
+          res.redirect('/vote_poll/' + poll_id);
+        });
+      }
+    });
+  });
 
 app.get('/logout', isLoggedIn, function(req, res) {
   req.logout();
