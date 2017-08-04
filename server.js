@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express(),
+    methodOverride = require('method-override'),
     morgan = require('morgan'),
     mongoose = require('mongoose'),
     session = require('express-session'),
@@ -13,6 +14,7 @@ var routes = require('./routes/routes');
 require('dotenv').config();
 mongoose.connect(process.env.MONGODB_URI);
 
+app.use(methodOverride('_method'));
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(morgan('tiny'));
 app.use(session({
