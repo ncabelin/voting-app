@@ -3,13 +3,29 @@
   <div class="row">
     <div class="col-md-12">
       <div class="jumbotron">
-        <h1>Poll Maker</h1>
-        <p class="lead">Welcome, <%= user.name %>. Create Fun Polls</p>
+        <h1><span class="logo whiteish">Vote<i class="fa fa-envelope-o" aria-hidden="true"></i></span><strong>it</strong></h1>
+        <% if (user) { %>
+          <p class="lead">Welcome <%= user.name %>, Please vote in a poll below</p>
+        <% } else { %>
+          <p class="lead">Create Fun Polls</p>
+        <% } %>
       </div>
     </div>
   </div>
   <div class="row">
-    <div id="polls"></div>
+    <div class="col-md-12">
+      <p class="small">* click to vote..</p>
+      <div id="polls" class="list-group">
+        <% polls.forEach(function(poll) { %>
+        <a href="/vote_poll/<%= poll._id %>">
+        <div class="list-group-item clearfix">
+          <img src="<%= poll.picture %>" class="img-responsive thumbnail pull-right">
+          <h3><%= poll.question %></h3>
+        </div></a>
+        <% }) %>
+      </div>
+    </div>
   </div>
 </div>
+<% include partials/scripts.ejs %>
 <% include partials/footer.ejs %>

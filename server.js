@@ -25,7 +25,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.set('view engine', 'ejs');
-app.use(express.static('static'));
+app.use(express.static(__dirname + '/static'));
 
 app.use(routes);
 

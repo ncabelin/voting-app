@@ -2,8 +2,76 @@
 <div class="container">
   <div class="row">
     <div class="col-md-12">
-      <h1>Edit / Delete Poll</h1>
+      <h1 class="text-center">Edit / Delete Poll</h1>
+      <% if (message) { %>
+        <div class="alert alert-success alert-dismissible"><%= message %>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3">
+      <div class="well">
+        <form method="POST" action="/edit/<%= poll.id %>?_method=PUT" class="form" id="form">
+          <div id="preview">
+            <img src="<%= poll.picture %>" class="img-responsive">
+          </div>
+          <div class="form-group">
+            <input type="text" name="picture" placeholder="Picture URL (link)" class="form-control" id="preview-input" value="<%= poll.picture %>">
+            <div class="btn btn-default btn-xs" id="preview-btn">preview</div>
+          </div>
+          <div class="form-group">
+            <input type="text" name="question" placeholder="Question" class="form-control" value="<%= poll.question %>" style="margin-bottom: 10px;">
+            <label>Current Options :</label
+          </div>
+
+          <% poll.options.forEach(function(p) { %>
+            <div class="form-group">
+              <input type="text" name="option" class="form-control" value="<%= p.option %>" readonly><div class="delete-option btn btn-default btn-xs pull-right" style="margin-bottom: 10px; border-top: 0;" data-id="<%= p._id %>">delete</div>
+            </div>
+          <% }) %>
+
+          <div class="form-group">
+            <label>New Options :</label>
+            <textarea type="text" name="text" placeholder="Add New Options: separate by a new line (hit enter)" rows="8" class="form-control"></textarea>
+          </div>
+          <input type="submit" class="btn btn-default" value="Update">
+          <div class="btn btn-default" id="delete-btn">Delete</div>
+          <a href="/my_polls" class="btn btn-default" id="cancel-btn">Cancel</a>
+        </form>
+      </div>
     </div>
   </div>
 </div>
+<% include partials/scripts.ejs %>
+<script>
+$(document).ready(function() {
+  var currentQuestion = '<%= poll.question %>';
+  $('#delete-btn').click(function() {
+    $.ajax({
+      url: '/delete/<%= poll._id %>',
+      type: 'DELETE',
+      success: function() {
+        window.location.replace('/my_polls?message=Post successfully deleted');
+      }
+    });
+  });
+
+  $('.delete-option').click(function() {
+    $.ajax({
+      url: '/options/<%= poll._id %>/delete/' + this.dataset.id,
+      type: 'DELETE',
+      success: function() {
+        window.location.replace('/edit_delete/<%= poll._id %>');
+      }
+    });
+  });
+
+  $('#preview-btn').click(function() {
+    console.log($('#preview-input').val());
+    $('#preview').html('<img src="' + $('#preview-input').val() + '" class="img-responsive">')
+  });
+});
+</script>
 <% include partials/footer.ejs %>

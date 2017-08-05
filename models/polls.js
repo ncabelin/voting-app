@@ -9,6 +9,7 @@ var Poll = new Schema({
       ref: 'Twitter_users'
     }
   },
+  picture: String,
   question: String,
   options: [
     {

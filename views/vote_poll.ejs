@@ -2,8 +2,192 @@
 <div class="container">
   <div class="row">
     <div class="col-md-12">
-      <h1>Vote Poll</h1>
+      <h1 class="text-center">Vote Poll</h1>
+      <% if (message) { %>
+        <div class="alert alert-success alert-dismissible"><%= message %>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+      <% } %>
     </div>
   </div>
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3">
+      <div class="well" id="poll">
+        <img src="<%= poll.picture %>" class="img-responsive">
+        <h3><%= poll.question %></h3>
+        <form id="form" class="form">
+          <div class="form-group">
+            <select name="vote_id" id="new-option">
+                <option disabled selected value> -- select an option -- </option>
+              <% poll.options.forEach(function(p) { %>
+                <option value="<%= p._id %>"><%= p.option %></option>
+              <% }) %>
+              <% if (user) { %>
+                <option value="add"> -- add a new option -- </option>
+              <% } %>
+            </select>
+          </div>
+          <input type="submit" class="btn btn-default btn-twitter" />
+          <div class="btn btn-default btn-twitter" id="results-btn">View Poll Results</div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Add Option for '<%= poll.question %>'</h4>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <input type="text" id="new-option-input" class="form-control">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" id="submit-new-option-input">Add</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div id="vote-results">
+    <div class="row">
+      <div class="col-md-6">
+        <canvas id="myChart" width="200" height="200"></canvas>
+      </div>
+      <div class="col-md-6">
+          <table class="table">
+            <thead>
+              <tr>
+                <td><strong>Option</strong></td>
+                <td><strong>Percentage of Votes</strong></td>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 </div>
+<% include partials/scripts.ejs %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+<script>
+
+$(document).ready(function() {
+  <% if (!submit) { %>
+    $('#vote-results').hide();
+  <% } else { %>
+    $('#poll').hide();
+  <% } %>
+
+  $('#results-btn').click(function() {
+    $('#vote-results').show();
+    $('#poll').hide();
+  });
+
+  $('#form').submit(function(e) {
+    e.preventDefault();
+    var vote = $('select[name=vote_id]').val();
+    $.ajax({
+      url: '/vote_poll/<%= poll._id %>/' + vote,
+      type: 'POST',
+    }).done(function(result) {
+      window.location.replace('/vote_poll/<%= poll._id %>?submit=true');
+    }).fail(function(err) {
+      alert(err.responseJSON.message);
+    });
+  });
+
+  $('#new-option').change(function() {
+    if ($('#new-option').val() === 'add') {
+      $('#myModal').modal();
+    }
+  });
+
+  $('#submit-new-option-input').click(function() {
+    $.ajax({
+      url: '/add_vote_option/<%= poll._id %>',
+      type: 'POST',
+      data: { option: $('#new-option-input').val() },
+      dataType: 'json'
+    }).done(function() {
+      window.location.replace('/vote_poll/<%= poll._id %>?message=Successfully added voting option');
+    }).fail(function(err) {
+      alert(err.responseJSON.message);
+    });
+  });
+
+  // chart JS
+  var votingDataSrc = <%- JSON.stringify(poll) %>;
+  var bgColorData = [
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(153, 102, 255, 0.2)',
+        'rgba(255, 159, 64, 0.2)'
+      ],
+      borderColorData = [
+        'rgba(255,99,132,1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 159, 64, 1)'
+      ]
+  var votingLabels = [],
+      votingData = [],
+      votingBgColor = [],
+      votingBorderColor = [],
+      countTotal = 0;
+  votingDataSrc.options.forEach(function(data, index) {
+    votingLabels.push(data.option);
+    votingData.push(data.count);
+    countTotal += data.count;
+    // assign 6 colors only
+    var i = index;
+    if (index > 6) {
+      i = i % 6;
+    }
+    votingBgColor.push(bgColorData[i]);
+    votingBorderColor.push(borderColorData[i]);
+  });
+
+  votingData.forEach(function(d, i) {
+    var percent = Math.round(( d / countTotal ) * 100) || 0;
+    $('tbody').append('<tr><td>' + votingLabels[i] + '</td><td>' + percent + '%</td></tr>');
+  });
+
+  var ctx = document.getElementById("myChart").getContext('2d');
+  var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+          labels: votingLabels,
+          datasets: [{
+              label: '# of Votes',
+              data: votingData,
+              backgroundColor: votingBgColor,
+              borderColor: votingBorderColor,
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              yAxes: [{
+                  ticks: {
+                      beginAtZero:true
+                  }
+              }]
+          }
+      }
+  });
+});
+</script>
 <% include partials/footer.ejs %>

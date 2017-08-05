@@ -3,9 +3,15 @@
   <div class="row">
     <div class="col-md-12">
       <div class="jumbotron">
-        <h1>Login</h1>
-        <p class="lead"Login with twitter</p>
-        <a href="http://127.0.0.1:8080/auth/twitter" class="btn btn-success"><i class="fa fa-twitter"></i> Log-in</a>
+        <h1 class="text-center">Login</h1>
+        <p class="lead text-center">Login with twitter securely.</p>
+        <div class="text-center center-block">
+          <a href="/auth/twitter" class="btn btn-default text-center"><i class="fa fa-twitter"></i> Log-in</a>
+        </div>
+        <br>
+        <div class="text-center center-block">
+          <a href="https://www.twitter.com" class="btn btn-default text-center"><i class="fa fa-twitter"></i> Twitter.com</a>
+        </div>
       </div>
     </div>
   </div>
@@ -13,4 +19,5 @@
     <div id="polls"></div>
   </div>
 </div>
+<% include partials/scripts.ejs %>
 <% include partials/footer.ejs %>

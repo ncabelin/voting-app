@@ -2,8 +2,28 @@
 <div class="container">
   <div class="row">
     <div class="col-md-12">
-      <h1>My Polls</h1>
+      <h1 class="text-center">My Polls</h1>
+      <% if (message) { %>
+        <div class="alert alert-success alert-dismissible"><%= message %>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3">
+      <div id="polls" class="list-group">
+        <% polls.forEach(function(poll) { %>
+          <div class="list-group-item clearfix">
+            <%= poll.question %><br><br>
+            <a href="/edit_delete/<%= poll._id %>" class="btn btn-default btn-xs btn-twitter">edit / delete</a>
+            <a href="/vote_poll/<%= poll._id %>" class="btn btn-default btn-xs btn-twitter">vote</a>
+            <a href="/vote_poll/<%= poll._id %>?submit=true" class="btn btn-default btn-xs btn-twitter">poll results</a>
+          </div>
+        <% }) %>
+      </div>
     </div>
   </div>
 </div>
+<% include partials/scripts.ejs %>
 <% include partials/footer.ejs %>
