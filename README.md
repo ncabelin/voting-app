@@ -1,4 +1,7 @@
 # Voting App
+
+![voting-app](http://res.cloudinary.com/dd6kwd0zn/image/upload/q_auto/v1501921130/Screenshot_2017-08-05_01.17.25_zizsky.png)
+
 A NodeJS server-side rendered voting app where :
 * As an authenticated user you can :
 1. Keep polls and come back later to access theme
@@ -12,13 +15,31 @@ A NodeJS server-side rendered voting app where :
 1. See and vote on everyone's polls
 2. Either auth and un-authed users can view results of polls in chart form
 
+* The app is live at [https://vote4it.herokuapp.com](https://vote4it.herokuapp.com)
+
 ## Dependencies
+* Back-end
 1. mongoDB / mongoose
 2. express
 3. ejs
 4. passport
 5. dotenv
 6. morgan
+
+* Front-end
+1. chartJS
+2. jQuery
+3. bootstrap 3.x
+
+## How to install
+* create '.env' configuration file and fill up the corresponding values after registering the app in twitter
+```
+MONGODB_URI=
+TWITTER_KEY=
+TWITTER_SECRET=
+TWITTER_CALLBACK=
+```
+* `npm start`
 
 ## Model
 ```
@@ -57,10 +78,8 @@ ip-address
 6. my_polls.ejs - my polls
 
 ## To Do
-* Edit / Delete route
-* convert Voting form to jQuery submission to enable Ajax notification of ip-address restriction
-* Add D3 barchart
-* refactor Routes
+* refactor to ES6 standards
+* refactor routes
 * Generate boilerplate code for future projects
 
 ## Author
