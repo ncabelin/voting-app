@@ -1,10 +1,8 @@
 # Voting App
 
-![voting-app](http://res.cloudinary.com/dd6kwd0zn/image/upload/q_auto/v1501921130/Screenshot_2017-08-05_01.17.25_zizsky.png)
-
 A NodeJS server-side rendered voting app where :
 * As an authenticated user you can :
-1. Keep polls and come back later to access theme
+1. Keep polls and come back later to access them
 2. Share polls with friends
 3. See aggregate results of polls
 4. Delete polls
@@ -16,7 +14,7 @@ A NodeJS server-side rendered voting app where :
 2. Either auth and un-authed users can view results of polls in chart form
 
 * The app is live at [https://vote4it.herokuapp.com](https://vote4it.herokuapp.com)
-
+![voting-app](http://res.cloudinary.com/dd6kwd0zn/image/upload/q_auto/v1501921130/Screenshot_2017-08-05_01.17.25_zizsky.png)
 ## Dependencies
 * Back-end
 1. mongoDB / mongoose
