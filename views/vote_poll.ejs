@@ -67,6 +67,7 @@
         <canvas id="myChart" width="200" height="200"></canvas>
       </div>
       <div class="col-md-6">
+          <p><em><%= poll.question %></em></p>
           <table class="table">
             <thead>
               <tr>
@@ -172,14 +173,16 @@ $(document).ready(function() {
 
   votingData.forEach(function(d, i) {
     var percent = Math.round(( d / countTotal ) * 100) || 0;
-    $('tbody').append('<tr><td>' + votingLabels[i] + '</td><td>' + percent + '%</td></tr>');
+    $('tbody').append('<tr><td style="color:' + votingBorderColor[i].split('),')[0] + ';">' + (i + 1) + '. ' + votingLabels[i] + '</td><td>' + percent + '%</td></tr>');
   });
 
   var ctx = document.getElementById("myChart").getContext('2d');
   var myChart = new Chart(ctx, {
       type: 'bar',
       data: {
-          labels: votingLabels,
+          labels: votingLabels.map(function(d,i) {
+            return i + 1;
+          }),
           datasets: [{
               label: '# of Votes',
               data: votingData,
