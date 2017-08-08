@@ -30,9 +30,9 @@
           <input type="submit" class="btn btn-default btn-twitter" />
           <div class="btn btn-default btn-twitter" id="results-btn">View Poll Results</div>
           <% if (user) { %>
-          <a class="twitter-share-button btn btn-default"
-            href="https://twitter.com/intent/tweet?text=Check%20out%20vote4it.herokuapp.com/vote_poll/<%= poll._id %>%20about%20<%= poll.question %>"
-            data-size="large"><i class="fa fa-twitter"></i> Share on twitter</a>
+          <a class="btn btn-default btn-twitter"
+            href="https://twitter.com/intent/tweet?text=Check%20out%20https://vote4it.herokuapp.com/vote_poll/<%= poll._id %>%20,%20a%20voting%20app%20polling%20for%20'%20<%= poll.question %>'"
+            data-size="large"><i class="fa fa-twitter"></i> Share on Twitter</a>
           <% } %>
         </form>
       </div>
@@ -77,6 +77,11 @@
             <tbody>
             </tbody>
           </table>
+          <% if (user) { %>
+          <a class="btn btn-default btn-twitter"
+            href="https://twitter.com/intent/tweet?text=Check%20out%20https://vote4it.herokuapp.com/vote_poll/<%= poll._id %>%20,%20a%20voting%20app%20polling%20for%20'%20<%= poll.question %>'"
+            data-size="large"><i class="fa fa-twitter"></i> Share on Twitter</a>
+          <% } %>
         </div>
       </div>
     </div>

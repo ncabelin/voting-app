@@ -255,7 +255,6 @@ router.get('/vote_poll/:poll_id', function(req, res) {
     })
   })
   .post('/vote_poll/:poll_id/:vote_id', function(req, res) {
-    console.log('yes');
     // look for ip
     var ip = req.ip,
         poll_id = req.params.poll_id;
@@ -294,7 +293,7 @@ router.get('/vote_poll/:poll_id', function(req, res) {
           if (err) { res.status(400).json({'message':'error finding poll option'})}
           poll_option.count += 1;
           poll_option.save();
-          res.redirect('/vote_poll/' + poll_id);
+          res.redirect('/vote_poll/' + poll_id + '?message=Succesfully voted');
         });
       }
     });
